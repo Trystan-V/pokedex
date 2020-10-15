@@ -28,14 +28,30 @@ function createItem (pokemon) {
     const item = document.createElement("li"); // CREATION ITEM  
     const photo = document.createElement("img"); // CREATION PHOTO
     
+    
+    
     fetch(pokemon.url).then(transformToJson).then((data) => {// ON RECUP LES DONNEES DE L'API    
         list.appendChild(item); // on intègre le "item"(=li) dans la "list"(=ul). Ne pas oublier de les déclarer avant si ce n'est pas fait. 
-        item.textContent=data.name + data.id; // on intègre le fichier data -> name de l'API directement dans le "item" (donc dans le <li>)
+        //item.textContent=data.name; // on intègre le fichier data -> name de l'API directement dans le "item" (donc dans le <li>)
         item.appendChild(photo);
-        photo.src = data.sprites.front_shiny;
+        photo.src = data.sprites.front_default;
+         
+
+        item.addEventListener('mouseover', fonction1)
+        function fonction1(){
+            showDescription(data); 
+            item.appendChild(description);  
+        }
         
-        console.log(data);
-    });
+        
+        item.addEventListener('mouseleave', remove1);
+        function remove1(){ 
+            hideDescription("show"); 
+            item.removeChild(description);  
+        }
+        
+        //console.log(data);
+    }); 
     
 }
 
@@ -53,11 +69,38 @@ function fillList (json) {
  */
 function showDescription (data) {
     description.classList.add("show");
-
     const fields = description.querySelectorAll("dd");
+    const types = description.querySelectorAll(".types") 
+    
+      
     fields.forEach((dd) => {
-        // ...
+            
+        dd.textContent = data[dd.classList[0]];  // on recupere notre chemin dans l'API des données et one le stock ds notre "dd" les données non egales à "types"
+        
+    
+        //dd.textContent = data[dd.classList[1]];
+       /*if(dd.classList[0] != "types"){
+        dd.textContent = data[dd.classList[0]];  // on recupere notre chemin dans l'API des données et one le stock ds notre "dd" les données non egales à "types"
+   }else{
+       dd.textContent = " "; 
+       data.types.forEach((type) => {          // les données = types sont stockées dans un nouveau "dd"(qui a deja les autres données), et on change le chemin pour venir chercher les données "types"
+           if(type.name > 1){
+               dd.textContent +=type.type.name;
+           }else{                                       
+               dd.textContent += type.type.name+" "; // ici on reprend le "dd" avec toutes les données + 1 données type, auquel on rajoute encore 1 données type, pour les pokémons qui ont plusieurs types
+           }
+       }
+   }*/
+
     });
+    types.forEach((types) => {
+        if(data.types.length < 2){ 
+        types.textContent = data.types[0].type.name; // ceux qui ont qu'1 type
+    }else{
+        types.textContent = data.types[0].type.name + " " + data.types[1].type.name; // pour ceux qui ont 2 types
+    } 
+
+});  
 }
 
 /**
@@ -65,6 +108,8 @@ function showDescription (data) {
  */
 function hideDescription () {
     description.classList.remove("show");
+    
+    //description.querySelectorAll.remove("dd"); 
 }
 
 // Fetch the API end-point and fill the list
